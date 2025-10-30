@@ -90,7 +90,8 @@ def build_pipeline(num_cols, cat_cols):
     ])
     categorical_transform = Pipeline([
         ("imputer", SimpleImputer(strategy="constant", fill_value="unknown")),
-        ("onehot", OneHotEncoder(handle_unknown="ignore", sparse=False))
+        ("onehot", OneHotEncoder(handle_unknown="ignore", sparse_output=False))
+
     ])
 
     preprocessor = ColumnTransformer([

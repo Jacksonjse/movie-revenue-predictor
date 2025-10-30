@@ -6,18 +6,21 @@ WORKDIR /app
 # System deps (if needed)
 RUN apt-get update && apt-get install -y build-essential gcc && rm -rf /var/lib/apt/lists/*
 
-# copy code
+# Install dependencies
 COPY src/requirements.txt /app/requirements.txt
 RUN pip install --upgrade pip
 RUN pip install -r /app/requirements.txt
 
+# Copy source code and model
 COPY src /app/src
+COPY model /app/model
+
+# Set working directory
 WORKDIR /app/src
 
-# expose port
+# Expose port
 ENV PORT 8000
 EXPOSE 8000
 
-# Ensure the model exists — your pipeline.joblib should be created by running train_model.py locally
-# The container expects src/model/pipeline.joblib to exist (you could also train on build, but training in CI is heavy)
+# Start the app
 CMD ["gunicorn", "-w", "2", "-b", "0.0.0.0:8000", "app:app", "--timeout", "120"]

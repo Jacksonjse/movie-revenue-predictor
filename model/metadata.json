@@ -1,0 +1,1 @@
+{"num_cols": ["budget", "popularity", "runtime", "vote_average", "vote_count", "release_year"], "cat_cols": ["original_language", "genre_0"]}
