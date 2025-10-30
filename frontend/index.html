@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Movie Revenue Predictor</title>
+
+  <style>
+    :root{
+      --bg:#0f1720;
+      --card:#0b1220;
+      --muted:#9aa4b2;
+      --accent:#7c3aed;
+      --accent-2:#06b6d4;
+      --glass: rgba(255,255,255,0.04);
+      --success:#22c55e;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: radial-gradient(1200px 600px at 10% 10%, rgba(124,58,237,0.08), transparent 8%),
+                  radial-gradient(800px 400px at 90% 80%, rgba(6,182,212,0.05), transparent 6%),
+                  var(--bg);
+      color:#e6eef6;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:32px;
+    }
+
+    .container{
+      width:100%;
+      max-width:980px;
+      display:grid;
+      grid-template-columns: 420px 1fr;
+      gap:28px;
+      align-items:start;
+    }
+
+    /* Left card (form) */
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border:1px solid rgba(255,255,255,0.03);
+      padding:24px;
+      border-radius:14px;
+      box-shadow: 0 6px 30px rgba(2,6,23,0.6), inset 0 1px 0 rgba(255,255,255,0.02);
+      backdrop-filter: blur(6px) saturate(120%);
+    }
+
+    .brand{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      margin-bottom:10px;
+    }
+    .logo{
+      width:58px;
+      height:58px;
+      background: linear-gradient(135deg,var(--accent),var(--accent-2));
+      border-radius:12px;
+      display:grid;
+      place-items:center;
+      box-shadow: 0 6px 18px rgba(124,58,237,0.22);
+      font-weight:700;
+      font-size:22px;
+    }
+    .title{
+      font-size:20px;
+      line-height:1;
+      margin:0;
+    }
+    .subtitle{
+      color:var(--muted);
+      font-size:13px;
+      margin-top:6px;
+    }
+
+    form .field{
+      margin-top:12px;
+    }
+    label{
+      display:block;
+      font-size:13px;
+      color:var(--muted);
+      margin-bottom:6px;
+    }
+
+    input[type="number"], select {
+      width:100%;
+      padding:12px 14px;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,0.04);
+      background:var(--glass);
+      color:inherit;
+      font-size:15px;
+      outline:none;
+      transition: box-shadow .15s, transform .08s;
+    }
+    input[type="number"]:focus, select:focus{
+      box-shadow: 0 6px 18px rgba(6,182,212,0.08);
+      transform: translateY(-1px);
+      border-color: rgba(6,182,212,0.18);
+    }
+
+    .row{
+      display:flex;
+      gap:12px;
+    }
+    .row .col{flex:1}
+
+    .hint{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:6px;
+    }
+
+    .btn{
+      margin-top:16px;
+      width:100%;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:10px;
+      padding:12px 14px;
+      border-radius:12px;
+      border:none;
+      cursor:pointer;
+      font-weight:600;
+      font-size:15px;
+      color:#071027;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      box-shadow: 0 10px 30px rgba(7,11,28,0.6), 0 6px 18px rgba(124,58,237,0.14);
+      transition: transform .12s, box-shadow .12s, opacity .12s;
+    }
+    .btn:active{ transform: translateY(1px) }
+    .btn:disabled{ opacity:.6; cursor:not-allowed; transform:none }
+
+    /* Right card (info & result) */
+    .info{
+      background: linear-gradient(180deg, rgba(255,255,255,0.018), rgba(255,255,255,0.008));
+      border:1px solid rgba(255,255,255,0.03);
+      padding:24px;
+      border-radius:14px;
+      min-height:320px;
+    }
+    .info h2{margin:0 0 12px 0}
+    .example{
+      margin-top:12px;
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.4;
+    }
+
+    .result{
+      margin-top:18px;
+      padding:18px;
+      background: linear-gradient(90deg, rgba(34,197,94,0.06), rgba(6,182,212,0.03));
+      border-radius:12px;
+      border:1px solid rgba(34,197,94,0.12);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+    .result .num{ font-size:20px; font-weight:700; color:var(--success) }
+    .error{
+      margin-top:12px;
+      padding:12px;
+      background: rgba(255,80,80,0.08);
+      color:#ffd3d3;
+      border-radius:10px;
+      border:1px solid rgba(255,80,80,0.14);
+      font-size:14px;
+    }
+
+    footer.note{
+      margin-top:18px;
+      font-size:13px;
+      color:var(--muted);
+    }
+
+    /* Responsive */
+    @media (max-width:940px){
+      .container{ grid-template-columns: 1fr; padding:12px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- LEFT: Form -->
+    <div class="card">
+      <div class="brand">
+        <div class="logo">MV</div>
+        <div>
+          <h3 class="title">Movie Revenue Predictor</h3>
+          <div class="subtitle">Enter movie features — get an estimated revenue.</div>
+        </div>
+      </div>
+
+      <form id="predict-form" autocomplete="off">
+        <!-- budget -->
+        <div class="field">
+          <label for="budget">Budget (USD)</label>
+          <input id="budget" name="budget" type="number" step="1" min="0" placeholder="e.g., 15000000" required />
+          <div class="hint">Production budget in US dollars (integer). Example: <strong>15000000</strong></div>
+        </div>
+
+        <div class="row">
+          <div class="col field">
+            <label for="runtime">Runtime (minutes)</label>
+            <input id="runtime" name="runtime" type="number" step="1" min="0" placeholder="e.g., 120" required />
+            <div class="hint">Length of movie in minutes. Example: <strong>120</strong></div>
+          </div>
+
+          <div class="col field">
+            <label for="popularity">Popularity (score)</label>
+            <input id="popularity" name="popularity" type="number" step="0.1" min="0" placeholder="e.g., 23.5" required />
+            <div class="hint">Popularity metric from dataset (float). Example: <strong>23.5</strong></div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col field">
+            <label for="vote_average">Vote Average (0–10)</label>
+            <input id="vote_average" name="vote_average" type="number" step="0.1" min="0" max="10" placeholder="e.g., 7.2" required />
+            <div class="hint">Average user rating (0 to 10). Example: <strong>7.2</strong></div>
+          </div>
+
+          <div class="col field">
+            <label for="vote_count">Vote Count</label>
+            <input id="vote_count" name="vote_count" type="number" step="1" min="0" placeholder="e.g., 1500" required />
+            <div class="hint">Number of votes/ratings. Example: <strong>1500</strong></div>
+          </div>
+        </div>
+
+        <button id="predict-btn" class="btn" type="submit">Predict Revenue</button>
+      </form>
+
+      <div id="error-box" style="display:none" class="error"></div>
+      <footer class="note">Tip: Use real-ish numbers from TMDB if available to get realistic outputs.</footer>
+    </div>
+
+    <!-- RIGHT: Info / Result -->
+    <div class="info">
+      <h2>How to use</h2>
+      <div class="example">
+        Enter realistic numeric values in the fields. The model expects numbers — strings will fail.
+        <ul>
+          <li><strong>Budget:</strong> integer USD.</li>
+          <li><strong>Runtime:</strong> minutes.</li>
+          <li><strong>Popularity:</strong> dataset popularity score (float).</li>
+          <li><strong>Vote Average:</strong> rating from 0 to 10.</li>
+          <li><strong>Vote Count:</strong> number of ratings (integer).</li>
+        </ul>
+      </div>
+
+      <div id="result-wrap" style="display:none" class="result" aria-live="polite">
+        <div>
+          <div style="color:var(--muted); font-size:13px">Estimated Box Office Revenue</div>
+          <div id="result-value" class="num">$0</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:12px; color:var(--muted)">Confidence (approx)</div>
+          <div id="confidence" style="font-weight:700; font-size:14px; color:#ffd166">—</div>
+        </div>
+      </div>
+
+      <div id="raw-response" style="margin-top:14px; color:var(--muted); font-size:13px; display:none"></div>
+    </div>
+  </div>
+
+  <script>
+    // === CONFIGURE THIS ===
+    // Replace with your backend URL (Render). Example: 'https://movie-revenue-predictor.onrender.com'
+    const API_BASE_URL = "http://localhost:8000"; // <-- change to your Render URL when deployed
+
+    // Element refs
+    const form = document.getElementById('predict-form');
+    const btn = document.getElementById('predict-btn');
+    const errorBox = document.getElementById('error-box');
+    const resultWrap = document.getElementById('result-wrap');
+    const resultValue = document.getElementById('result-value');
+    const confidenceEl = document.getElementById('confidence');
+    const rawResponse = document.getElementById('raw-response');
+
+    // Helper: format large numbers with commas
+    function formatMoney(n){
+      if(typeof n !== 'number') n = Number(n) || 0;
+      return n.toLocaleString(undefined, {maximumFractionDigits: 0});
+    }
+
+    async function postPredict(payload){
+      const url = API_BASE_URL.replace(/\/$/, '') + '/predict';
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(payload),
+      });
+      if(!res.ok){
+        const text = await res.text();
+        const err = new Error('Server returned ' + res.status + ': ' + text);
+        err.status = res.status;
+        throw err;
+      }
+      return res.json();
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errorBox.style.display = 'none';
+      resultWrap.style.display = 'none';
+      rawResponse.style.display = 'none';
+
+      const data = {
+        budget: Number(document.getElementById('budget').value || 0),
+        runtime: Number(document.getElementById('runtime').value || 0),
+        popularity: Number(document.getElementById('popularity').value || 0),
+        vote_average: Number(document.getElementById('vote_average').value || 0),
+        vote_count: Number(document.getElementById('vote_count').value || 0),
+      };
+
+      // Basic validation
+      if(data.budget < 0 || data.runtime <= 0){
+        errorBox.textContent = 'Budget must be >= 0 and runtime must be > 0.';
+        errorBox.style.display = 'block';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Predicting...';
+
+      try {
+        const json = await postPredict(data);
+
+        // expected response shape: { prediction: <num> } or { revenue: <num> } or { predictions: [..] }
+        let predicted;
+        if(json.prediction !== undefined) predicted = json.prediction;
+        else if (json.revenue !== undefined) predicted = json.revenue;
+        else if (json.predictions && Array.isArray(json.predictions)) predicted = json.predictions[0];
+        else if (json.predicted_revenue !== undefined) predicted = json.predicted_revenue;
+        else {
+          // show raw for debugging
+          rawResponse.style.display = 'block';
+          rawResponse.textContent = 'Server response: ' + JSON.stringify(json);
+          throw new Error('Unexpected server response format.');
+        }
+
+        // show formatted result
+        const val = Number(predicted) || 0;
+        resultValue.textContent = '$' + formatMoney(Math.round(val));
+        confidenceEl.textContent = 'approx'; // placeholder — add proper metric if available
+        resultWrap.style.display = 'flex';
+        rawResponse.style.display = 'block';
+        rawResponse.textContent = 'Raw response: ' + JSON.stringify(json);
+
+      } catch (err) {
+        console.error(err);
+        errorBox.textContent = 'Error connecting to backend: ' + (err.message || err);
+        errorBox.style.display = 'block';
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Predict Revenue';
+      }
+    });
+
+    // Small dev check: ping health endpoint
+    (async function ping(){
+      try {
+        const r = await fetch(API_BASE_URL.replace(/\/$/,'') + '/');
+        if(!r.ok) throw new Error('health endpoint returned ' + r.status);
+        const j = await r.json();
+        console.log('Backend health:', j);
+      } catch(e){
+        console.warn('Backend health check failed — CORS or backend unreachable. Change API_BASE_URL to your backend URL and enable CORS on the server.', e);
+      }
+    })();
+  </script>
+</body>
+</html>
